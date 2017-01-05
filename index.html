@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="js/gameEngine.js"></script>
+    <meta charset="UTF-8">
+    <title>Game</title>
+    <meta name="viewport" content="width=1280, user-scalable=no"/>
+
+    <!--Utils-->
+    <script src="js/mobile-detect.min.js"></script>
+    <script type="text/javascript" src="vendor/Vector2D.js"></script>
+    <script type="text/javascript" src="vendor/MouseTrap.js"></script>
+    <script type="text/javascript" src="vendor/iluminated.js"></script>
+
+    <script type="text/javascript" src="js/Map2.js"></script>
+
+    <script type="text/javascript" src="js/gameEngine.js"></script>
+    <script type="text/javascript" src="js/player.js"></script>
+    <script type="text/javascript" src="js/Map.js"></script>
+    <script type="text/javascript" src="js/render.js"></script>
+    <script type="text/javascript" src="js/Text.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+
+    <audio id="playTutorial" loop>
+        <source src="music/name.mp3" type="audio/mp3">
+    </audio>
+    <audio id="playGame" loop>
+        <source src="music/name.mp3" type="audio/mp3">
+    </audio>
+    <audio id="playDie">
+        <source src="music/warp.wav" type="audio/mp3">
+    </audio>
+    <audio id="playDimension">
+        <source src="music/warp.wav" type="audio/wav">
+    </audio>
+
+
+    <script src="js/jquery.min.js"></script>
+
+
+    <script type="text/javascript">
+        var gameEngine = new GameEngine();
+        var renderEngine = new Render();
+        var gameStarted = false;
+
+
+        document_onload = function () {
+
+            var QPressed = function () {
+                if (gameEngine.power && gameEngine.currentDimension != 0) {
+                    gameEngine.currentDimension = 0;
+                    gameEngine.changingDimension = true;
+                    document.getElementById('playDimension').pause();
+                    document.getElementById('playDimension').currentTime = 0;
+                    document.getElementById('playDimension').play();
+                }
+            };
+            var WPressed = function () {
+                if (gameEngine.power && gameEngine.currentDimension != 1) {
+                    gameEngine.currentDimension = 1;
+                    gameEngine.changingDimension = true;
+                    document.getElementById('playDimension').pause();
+                    document.getElementById('playDimension').currentTime = 0;
+                    document.getElementById('playDimension').play();
+                }
+            };
+            var EPressed = function () {
+                if (gameEngine.power && gameEngine.currentDimension != 2) {
+                    gameEngine.currentDimension = 2;
+                    gameEngine.changingDimension = true;
+                    document.getElementById('playDimension').pause();
+                    document.getElementById('playDimension').currentTime = 0;
+                    document.getElementById('playDimension').play();
+                }
+            };
+            var RPressed = function () {
+                if (gameEngine.power && gameEngine.currentDimension != 3) {
+                    gameEngine.currentDimension = 3;
+                    gameEngine.changingDimension = true;
+                    document.getElementById('playDimension').pause();
+                    document.getElementById('playDimension').currentTime = 0;
+                    document.getElementById('playDimension').play();
+                }
+            };
+
+
+            var elem = document.getElementsByTagName("body")[0];
+
+            function toggleFullScreen() {
+                if (!document.mozFullScreen && !document.webkitFullScreen) {
+                    if (elem.mozRequestFullScreen) {
+                        elem.mozRequestFullScreen();
+                    } else {
+                        elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+                    }
+                } else {
+                    if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else {
+                        document.webkitCancelFullScreen();
+                    }
+                }
+            }
+
+
+
+            function startAll(e) {
+                if(e){
+                    e.preventDefault();
+                }
+                if (gameStarted === true) {
+                    return;
+                } else {
+                    gameStarted = true;
+                }
+//                toggleFullScreen();
+                document.getElementById("presstostart").style.display = 'none';
+                gameEngine.init();
+                renderEngine.init();
+
+                document.getElementById('playDie').volume = 0.5;
+                document.getElementById('playDimension').volume = 0.7;
+
+
+                Mousetrap.bind('q', QPressed, 'keyup');
+                Mousetrap.bind('w', WPressed, 'keyup');
+                Mousetrap.bind('e', EPressed, 'keyup');
+                Mousetrap.bind('r', RPressed, 'keyup');
+
+                document.getElementById("keyq").addEventListener("touchstart", QPressed);
+                document.getElementById("keyw").addEventListener("touchstart", WPressed);
+                document.getElementById("keye").addEventListener("touchstart", EPressed);
+                document.getElementById("keyr").addEventListener("touchstart", RPressed);
+
+                gameLoop();
+            }
+
+            document.addEventListener("keydown", function (e) {
+                if (e.keyCode == 13) {
+                    toggleFullScreen();
+
+                }
+            });
+
+            var md = new MobileDetect(window.navigator.userAgent);
+            if (md.mobile() || md.phone() || md.tablet()) {
+                document.getElementById("legend").style.display = 'none';
+                document.getElementsByTagName("body")[0].addEventListener("touchstart", startAll);
+
+            } else {
+                document.getElementById("presstostart").style.display = 'none';
+                document.getElementById("controls").style.display = 'none';
+                startAll();
+
+            }
+
+
+        };
+
+        var gameLoop = function () {
+            //gameEngine.update();
+            //gameEngine.render.draw();
+            if (!gameEngine.changingDimension) {
+                gameEngine.update();
+            }
+            renderEngine.draw();
+            requestAnimationFrame(gameLoop);
+        };
+
+
+        document.addEventListener('DOMContentLoaded', document_onload, false);
+    </script>
+
+    <style>
+    </style>
+
+</head>
+<body>
+
+<div id="presstostart" style="position:absolute;top: 0;left: 0; bottom: 0;right: 0; color:white; text-align: center;">
+    <h1>TAP TO START</h1></div>
+<canvas id="gameCanvas" width="1200" height="800"></canvas>
+
+<div id="legend" style="position:absolute;top:5px;left:5px;display:inline;font-family: Roboto;">
+    <h1 style="color:#96DC96;display:inline">Q</h1>
+
+    <h1 style="color:#96C5D5;display:inline">W</h1>
+
+    <h1 style="color:#DCD595;display:inline">E</h1>
+
+    <h1 style="color:#DC9696;display:inline">R</h1>
+</div>
+
+<div id="controls"
+     style="z-index: 1000; height: 100%; width:100%; position: absolute; display:table;bottom: 0px; opacity: 0.4">
+    <div style="display: table-row; height: 70%">
+        <div style="display: table-cell;  width: 50%; position:relative;" id="keyq">
+            <div style="background-color: #96DC96; position: absolute; width: 2em; height: 2em; bottom:10%; left: 10%;"></div>
+        </div>
+        <div style="display: table-cell;  width: 50%; position:relative;" id="keyw">
+            <div style="background-color: #96C5D5; position: absolute; width: 2em; height: 2em; bottom:10%; right: 10%"></div>
+        </div>
+    </div>
+    <div style="display: table-row; height: 30%">
+        <div style="display: table-cell;  width: 50%; position:relative;" id="keye">
+            <div style="background-color: #DCD595; position: absolute;top: 10%; width: 2em; height: 2em; left: 10%; "></div>
+        </div>
+        <div style="display: table-cell;  width: 50%; position:relative;" id="keyr">
+            <div style="background-color: #DC9696; position: absolute;top: 10%; width: 2em; height: 2em; right: 10%"></div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
